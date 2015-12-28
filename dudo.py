@@ -13,10 +13,10 @@ all_cards_ranked = {
 }
 
 my_game = {
-        "aces" : 1,
-        "kings" : 1,
+        "aces" : 3,
+        "kings" : 2,
         "queens" : 0, 
-        "jacks" : 3,
+        "jacks" : 0,
         "10s" : 0, 
         "9s" : 0
         }
@@ -26,17 +26,18 @@ my_game = {
 def calculate_chances_call (num_players, fijo, call):
     chances = 0.0
     num_dice = (num_players - 1) * 5
-    if not fijo and call[0] != "aces" and my_game[call[0]] + my_game["aces"] >= call[1]: #Verifying that the call isn't lower than what I have
-        chances = 1
-    elif fijo and my_game[call[0]] >= call[1]:
-        chances = 1
+    wanted_num_card = call[1] - (my_game[call[0]] + my_game["aces"])
+    if not fijo and call[0] != "aces" and  wanted_num_card <= 0: #Verifying that the call isn't lower than what I have
+        chances += 1
+    elif fijo and wanted_num_card <= 0:
+        chances += 1
     else:
         if call [0] == "aces" or fijo:   #If we are fijos then getting a card is same as ace
             for num in list(range(num_dice + 1))[call[1] - my_game[call[0]]:]:
                 chances += combi(num_dice, num) * (1/6)**num * (5/6)**(num_dice - num) #This is the binomial formula of probability
         else : 
-            for num in list(range(num_dice + 1))[call[1] - (my_game[call[0]] + my_game["aces"]):]:
-                chances += combi(num_dice, call[1]) * (2/6)**call[1] * (4/6)**(num_dice - call[1]) #This is the binomial formula of probability
+            for num in list(range(num_dice + 1))[wanted_num_card:]:
+                chances += combi(num_dice, num) * (1/3)**num * (2/3)**(num_dice - num) #This is the binomial formula of probability
     return chances
 
 def give_options (fijo, fijos, call):
@@ -77,6 +78,6 @@ def give_chances_options (fijo, fijos, call, num_players):
 def combi (n, k):
     return math.factorial(n)/(math.factorial(k)*math.factorial(n-k))
 
-print give_chances_options (False, False, ["jacks", 3], 2)
-#print calculate_chances_call(2, False, ["jacks", 4])
+print give_chances_options (False, False, ["kings", 8], 3)[0][0]
+#print calculate_chances_call(4, False, ["queens", 7])
 
