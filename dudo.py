@@ -13,31 +13,34 @@ all_cards_ranked = {
 }
 
 my_game = {
-        "aces" : 3,
+        "aces" : 1,
         "kings" : 2,
-        "queens" : 0, 
+        "queens" : 2, 
         "jacks" : 0,
         "10s" : 0, 
-        "9s" : 0
+        "9s" : 1
         }
 
 
 
-def calculate_chances_call (num_players, fijo, call):
+def calculate_chances_call (num_players, fijos, call,):
     chances = 0.0
     num_dice = (num_players - 1) * 5
-    wanted_num_card = call[1] - (my_game[call[0]] + my_game["aces"])
-    if not fijo and call[0] != "aces" and  wanted_num_card <= 0: #Verifying that the call isn't lower than what I have
-        chances += 1
-    elif fijo and wanted_num_card <= 0:
+    if fijos:
+        wanted_num_card = call[1] - my_game[call[0]]
+    else: 
+        wanted_num_card = call[1] - (my_game[call[0]] + my_game["aces"])
+    
+    
+    if wanted_num_card <= 0: 
         chances += 1
     else:
-        if call [0] == "aces" or fijo:   #If we are fijos then getting a card is same as ace
+        if call [0] == "aces" or fijos:   #If we are fijos then getting a card is same as ace
             for num in list(range(num_dice + 1))[call[1] - my_game[call[0]]:]:
                 chances += combi(num_dice, num) * (1/6)**num * (5/6)**(num_dice - num) #This is the binomial formula of probability
         else : 
             for num in list(range(num_dice + 1))[wanted_num_card:]:
-                chances += combi(num_dice, num) * (1/3)**num * (2/3)**(num_dice - num) #This is the binomial formula of probability
+                chances += combi(num_dice, num) * (1/3)**num * (2/3)**(num_dice - num) #This is the binomial formula of probability       
     return chances
 
 def give_options (fijo, fijos, call):
@@ -66,18 +69,21 @@ def give_chances_options (fijo, fijos, call, num_players):
     chances = []
     options = give_options (fijo, fijos, call)
     for option in options:
-        chances.append([option, calculate_chances_call(num_players, fijo, option)])
-    chances.append(["dudo", 1.0 - calculate_chances_call(num_players, fijo, call)])
+        chances.append([option, calculate_chances_call(num_players, fijos, option)])
+    chances.append(["dudo", 1.0 - calculate_chances_call(num_players, fijos, call)])
     return sorted(chances, key = itemgetter(1), reverse = True)
         
-
         
         
-        
-        
+def play_dudo (fijo, fijos, call, num_players): 
+    chances = give_chances_options (fijo, fijos, call, num_players)
+    for item in chances: 
+        item[1] = str(round(item[1]*100, 2)) + "%"
+        print item
 def combi (n, k):
     return math.factorial(n)/(math.factorial(k)*math.factorial(n-k))
 
-print give_chances_options (False, False, ["kings", 8], 3)[0][0]
+
+play_dudo (False, False, ["queens", 2], 3)
 #print calculate_chances_call(4, False, ["queens", 7])
 
